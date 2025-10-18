@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Pascal Quiz</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .quiz-box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 20px;
+      width: 350px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    h1 { margin-bottom: 20px; }
+    #question {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+    }
+    .btn {
+      background: white;
+      color: #0f172a;
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 5px 0;
+      cursor: pointer;
+      width: 100%;
+      transition: 0.2s;
+    }
+    .btn:hover { background: #e2e8f0; }
+    #next-btn {
+      background: #10b981;
+      color: white;
+      display: none;
+      margin-top: 15px;
+    }
+    #next-btn:hover { background: #059669; }
+    #timer {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-box">
+    <h1>Pascal Quiz</h1>
+    <div id="timer">⏱️ Time: <span id="time">10</span>s</div>
+    <div id="question">Loading question...</div>
+    <div id="answer-buttons"></div>
+    <button id="next-btn">Next</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "Who is the king of Pascal?",
+        answers: [
+          { text: "Earl the great", correct: false },
+          { text: "Kokong the marksman", correct: false },
+          { text: "Ivar the fighter", correct: true },
+          { text: "Chenchen cutie", correct: false }
+        ]
+      },
+      {
+        question: "How many days was Roy and Earl's relationship?",
+        answers: [
+          { text: "6 days", correct: false },
+          { text: "7 days", correct: false },
+          { text: "3 days", correct: true },
+          { text: "67 days", correct: false }
+        ]
+      },
+      {
+        question: "Who is the best shooter in Pascal?",
+        answers: [
+          { text: "Alicia's best fighter Ivar", correct: false },
+          { text: "Kokong from the land of marksmen", correct: true },
+          { text: "Giovann the Soda Pop", correct: false },
+          { text: "The ruff ruff", correct: false }
+        ]
+      },
+      {
+        question: "Who is the best superhero in Pascal?",
+        answers: [
+          { text: "Batman", correct: false },
+          { text: "Four Arms", correct: true },
+          { text: "Kolonijoban", correct: false },
+          { text: "Super Mario", correct: false }
+        ]
+      },
+      {
+        question: "Who is the cutest in Pascal?",
+        answers: [
+          { text: "Clint", correct: true },
+          { text: "Angelo", correct: true },
+          { text: "Pendijito", correct: true },
+          { text: "Cutanda", correct: true }
+        ]
+      }
+    ];
+
+    const questionEl = document.getElementById("question");
+    const answerButtons = document.getElementById("answer-buttons");
+    const nextButton = document.getElementById("next-btn");
+    const timerEl = document.getElementById("time");
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timeLeft = 10;
+    let timer;
+
+    function startQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      nextButton.textContent = "Next";
+      showQuestion();
+    }
+
+    function startTimer() {
+      timeLeft = 10;
+      timerEl.textContent = timeLeft;
+      timer = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          handleNextButton();
+        }
+      }, 1000);
+    }
+
+    function showQuestion() {
+      resetState();
+      startTimer();
+      const currentQuestion = questions[currentQuestionIndex];
+      questionEl.textContent = currentQuestion.question;
+      currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.textContent = answer.text;
+        button.classList.add("btn");
+        button.addEventListener("click", () => selectAnswer(answer, button));
+        answerButtons.appendChild(button);
+      });
+    }
+
+    function resetState() {
+      clearInterval(timer);
+      nextButton.style.display = "none";
+      answerButtons.innerHTML = "";
+    }
+
+    function selectAnswer(answer, button) {
+      clearInterval(timer);
+      const correct = answer.correct;
+      if (correct) {
+        button.style.background = "#22c55e";
+        score++;
+      } else {
+        button.style.background = "#ef4444";
+      }
+
+      Array.from(answerButtons.children).forEach(btn => {
+        btn.disabled = true;
+        if (questions[currentQuestionIndex].answers.find(a => a.text === btn.textContent).correct) {
+          btn.style.background = "#22c55e";
+        }
+      });
+
+      nextButton.style.display = "block";
+    }
+
+    function handleNextButton() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showScore();
+      }
+    }
+
+    function showScore() {
+      resetState();
+      questionEl.textContent = `🎉 You scored ${score} out of ${questions.length}!`;
+      nextButton.textContent = "Play Again";
+      nextButton.style.display = "block";
+    }
+
+    nextButton.addEventListener("click", () => {
+      if (currentQuestionIndex < questions.length) {
+        handleNextButton();
+      } else {
+        startQuiz();
+      }
+    });
+
+    startQuiz();
+  </script>
+</body>
+</html>
